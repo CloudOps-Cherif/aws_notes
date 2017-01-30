@@ -85,13 +85,50 @@ Exam Tips:
 
 
 #### Security Groups
-- a security group is a virtual firewall that controls access to your EC2 instances
-- 1 instance can have multiple security Groups (many to many relationship between security groups and ec2 instances)
-   - have rules that allows traffic to and from instances
+- Virtual firewall that controls access to your EC2 instances
+- One instance can have multiple security Groups (many to many relationship between security groups and ec2 instances)
+   - Have rules that allows traffic to and from instances
      - Any security rule change is applied IMMEADIATELY
-     - if you add an inbound rule, it will automatically open it as outbound as well (security groups are stateful)
+     - If you add an inbound rule, it will automatically open it as outbound as well (security groups are stateful)
      - All inbound traffic is blocked by default
      - All outbound traffic is allowed by default
      - When you have an instance with multiple security groups, the results are additive
 
-** You cannot block specific IP addresses using security groups, you have to use access control lists **
+** You cannot block specific IP addresses using security groups, you have to use Network Access Control Lists **
+
+#### Volumes and Snapshots
+- Volumes exist on EBS (Elastic Block Storage)
+  - Volumes are virtual hard disks
+  - Must be in same Availability Zone as EC2 instance in order to attach
+- Snapshots are point in time copies of Volumes
+  - Stored on S3
+  - Are incremental, only the blocks that have changed since your last snapshot are moved to S3
+  - First snapshot may take some time to create but later ones will be faster
+
+#### RAID, Volumes and Snapshots
+Redundant Array of Independent disks
+- RAID 0 : striped, no redundancy, good performance
+- RAID 1 : mirrored, redundancy
+- RAID 5 : good for reads, bad for writes, AWS does not recommend ever putting RAID 5's on EBS
+- RAID 10 : striped and mirrored, good redundancy, good performance
+
+You would typically use RAID 0 or RAID 10 to get better disk IO on a database not supported by AWS
+
+Problem: When you try to take a snapshot of a RAID array, the snapshot excludes data held in the cache by applications and the OS. This tends not to matter on a single volume, but with RAID, this causes issues due to interdependencies of the array.
+
+Solution: Take application specific snapshot. Stop all applications from writing to disk and flush all caches.
+- Freeze the file system
+- Unmount the RAID array
+- Shut down the associated EC2 instance (easiest)
+
+#### Amazon Machine Image (AMI)
+Provides the information needed to launch a virtual server in the cloud
+1. Template for root volume for the instance (i.e. the OS, an app server, and applications)
+1. Launch permissions that control which AWS accounts can use the AMI to launch instances
+1. A block device mapping that specifies the volumes to attach to the instance with it is launched
+
+** Review AMI hardening and cleanup requirements for exam **
+
+Exam Tips
+- AMIs are regional. You can only launch and AMI from the region in which it is stored. You can copy AMIs to other regions using the console or command line
+- AMIs are stored in S3
