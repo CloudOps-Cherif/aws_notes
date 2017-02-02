@@ -129,6 +129,46 @@ Provides the information needed to launch a virtual server in the cloud
 
 ** Review AMI hardening and cleanup requirements for exam **
 
-Exam Tips
+Exam Tips:
 - AMIs are regional. You can only launch and AMI from the region in which it is stored. You can copy AMIs to other regions using the console or command line
 - AMIs are stored in S3
+
+#### AMI Types
+- EBS
+  - Root device for instance is Amazon EBS volume created from an Amazon EBS snapshot
+  - Used by most AMIs
+  - Can be stopped, you won't lose data if it is stopped
+  - Root volume is deleted by default when instance is deleted, but you can tell AWS not to do this
+- Instance Store
+  - Root device for instance is an instance store volume created from a template stored in S3
+  - Cannot stop/start the instance, only reboot and terminate (no data loss on reboot)
+  - If underlying host fails, you will lose your data
+  - Sometimes called Ephemeral Storage
+  - Root volume is always deleted when deleting the instance
+
+#### Elastic Load Balancers
+- Instance monitored by ELB are reported as InService or OutOfService
+- Health Checks check the instance health by talking to it (you define what address to hit)
+- Have their own DNS name, you are never given an IP address
+
+** Read ELB FAQ for Classic Load Balancers **
+
+#### CloudWatch
+Found under management tools (do not confuse with CloudTrail or cloudFormation)
+- Can build dashboards that display different metrics from your EC2 instances, S3 buckets, etc
+- Standard monitoring (enabled by default) = poll every 5 minutes
+- Detailed monitoring (manually enabled when you create the EC2 instance)= poll every 1 minute
+- Alarms: alert based on metrics (Like CPU Utilization)
+  - Could send email when over CPU threshold
+  - Could stop or terminate instance when under CPU utilization threshold
+- Events: respond to state changes in an AWS resource
+- Logs: helps aggregate, monitor, and store logs
+
+#### Identity Access Management (IAM) Roles
+- Roles are more secure than storing your access key and secret access key on individual EC2 instances
+- Roles are easier to manage (you can change permissions afterward and don't have to worry about changing access keys)
+- Roles can only be assigned when that EC2 instance is being provisioned (they can be modified and deleted however)
+- Roles are universal, you can use them in any region
+
+#### Bash Scripting
+- you can specify a bash script to be executed on your EC2 instances when it is allocated
